@@ -36,6 +36,6 @@ git push origin fix/ui-bugs
 
 After pushing your branch to remote, access GitHub Repo and create a Pull Request to `dev`. 
 
-**PLEASE NOTICE!!! ONLY CREATE A PULL REQUEST TO `dev`, NOT `main`. PAY ATTENTION WHEN CREATING A PULL REQUEDST. THANK YOU!!!**
+**PLEASE NOTICE!!! ONLY CREATE A PULL REQUEST TO `dev`, NOT `main`. PAY ATTENTION WHEN CREATING A PULL REQUEST. THANK YOU!!!**
 
 Always choose a reviewer for your pull request, it shouldn't be self-reviewed. Or at least notify other members via text message. You shouldn't merging to `dev` without any other member's reviews.
