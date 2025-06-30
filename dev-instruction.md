@@ -9,7 +9,7 @@ git checkout dev
 git pull origin dev
 ```
 
-- Than create new branch with this naming convention: `[type]/[description]`
+- Then create new branch with this naming convention: `[type]/[description]`
 
 ``` bash
 # When creating a new feature
