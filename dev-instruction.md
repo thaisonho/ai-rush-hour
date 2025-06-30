@@ -24,7 +24,7 @@ git checkout -b chore/update-readme
 
 ## Step 2: Commit & Push
 
-After finish your job, commiting the changes and push the branch to remote.
+After finish your job, committing the changes and push the branch to remote.
 
 ``` bash
 git add .
