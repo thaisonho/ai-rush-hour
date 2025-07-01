@@ -1,5 +1,6 @@
 from board import Board
 from vehicle import Vehicle
+from move import Move
 
 def main():
     # The first vehicle (for now) is always the red car
@@ -20,6 +21,21 @@ def main():
 
     # Check if the puzzle is solved
     print(f"\nIs solved? {board.is_solved()}")
+
+    # Get and print possible moves
+    possible_moves = board.get_possible_moves()
+    print("\nPossible moves:")
+    for move in possible_moves:
+        print(move)
+
+    # Apply the first possible move and print the new board
+    if possible_moves:
+        print("\nApplying the first possible move...")
+        new_board = board.apply_move(possible_moves[0])
+        print("\nNew Board State:")
+        print(new_board)
+    else:
+        print("\nNo possible moves found.")
 
 if __name__ == "__main__":
     main()

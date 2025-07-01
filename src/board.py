@@ -1,4 +1,6 @@
 from vehicle import Vehicle
+from move import Move
+import copy
 
 class Board:
     def __init__(self, width, height, vehicles):
@@ -45,18 +47,68 @@ class Board:
         return red_car.x + red_car.length >= self.width
 
     def get_possible_moves(self):
-        # placeholder
-        return []
+        moves = []
+        grid = self._get_grid()
 
-    def __repr__(self):
-        # dots represent empty spaces, vehicle IDs represent occupied spaces
+        for vehicle in self.vehicles:
+            if vehicle.orientation == 'H':
+                # Move right
+                for i in range(1, self.width):
+                    if vehicle.x + vehicle.length + i - 1 < self.width and grid[vehicle.y][vehicle.x + vehicle.length + i - 1] == '.':
+                        moves.append(Move(vehicle.id, i))
+                    else:
+                        break
+                # Move left
+                for i in range(1, self.width):
+                    if vehicle.x - i >= 0 and grid[vehicle.y][vehicle.x - i] == '.':
+                        moves.append(Move(vehicle.id, -i))
+                    else:
+                        break
+            else:  # 'V'
+                # Move down
+                for i in range(1, self.height):
+                    if vehicle.y + vehicle.length + i - 1 < self.height and grid[vehicle.y + vehicle.length + i - 1][vehicle.x] == '.':
+                        moves.append(Move(vehicle.id, i))
+                    else:
+                        break
+                # Move up
+                for i in range(1, self.height):
+                    if vehicle.y - i >= 0 and grid[vehicle.y - i][vehicle.x] == '.':
+                        moves.append(Move(vehicle.id, -i))
+                    else:
+                        break
+        return moves
+
+    def apply_move(self, move: Move):
+        # deep copying the vehicles.
+        new_vehicles = copy.deepcopy(self.vehicles)
+        for vehicle in new_vehicles:
+            if vehicle.id == move.vehicle_id:
+                if vehicle.orientation == 'H':
+                    vehicle.x += move.amount
+                else:
+                    vehicle.y += move.amount
+                break
+        return Board(self.width, self.height, new_vehicles)
+
+    def apply_moves(self, moves: list[Move]):
+        board = self
+        for move in moves:
+            board = board.apply_move(move)
+        return board
+
+    def _get_grid(self):
         grid = [['.' for _ in range(self.width)] for _ in range(self.height)]
-
         for vehicle in self.vehicles:
             if vehicle.orientation == 'H':
                 for i in range(vehicle.length):
                     grid[vehicle.y][vehicle.x + i] = vehicle.id
-            else: # 'V'
+            else:  # 'V'
                 for i in range(vehicle.length):
                     grid[vehicle.y + i][vehicle.x] = vehicle.id
+        return grid
+
+    def __repr__(self):
+        # dots represent empty spaces, vehicle IDs represent occupied spaces
+        grid = self._get_grid()
         return '\n'.join([''.join(row) for row in grid])
