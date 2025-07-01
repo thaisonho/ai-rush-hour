@@ -15,18 +15,11 @@ class Solver(ABC):
 
     @abstractmethod
     def solve(self):
-        """
-        Solves the Rush Hour puzzle.
-
-        This method must be implemented by subclasses. It should return a list
-        of moves representing the solution path, or None if no solution is found.
-        """
+        # algorithms will be implememented later in subclasses
         pass
 
     def get_stats(self):
-        """
-        Returns the performance statistics of the solver.
-        """
+        # return the stats of the solver as a dictionary
         return {
             "search_time": self.search_time,
             "memory_usage": self.memory_usage,

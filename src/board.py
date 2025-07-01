@@ -109,6 +109,6 @@ class Board:
         return grid
 
     def __repr__(self):
-        # dots represent empty spaces, vehicle IDs represent occupied spaces
+        # dots represent empty spaces, vehicle IDs represent occupied spaces    
         grid = self._get_grid()
         return '\n'.join([''.join(row) for row in grid])
