@@ -15,7 +15,7 @@ class Solver(ABC):
 
     @abstractmethod
     def solve(self):
-        # algorithms will be implememented later in subclasses
+        # algorithms will be implemented later in subclasses
         pass
 
     def get_stats(self):
