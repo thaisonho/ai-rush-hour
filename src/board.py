@@ -41,7 +41,7 @@ class Board:
                     grid[v.y + i][v.x] = v.id
 
     def is_solved(self):
-        # check for the winning codition
+        # check for the winning condition
         # e.g., the red car must be at the right edge of the board
         red_car = self.vehicles[0]
         return red_car.x + red_car.length >= self.width
