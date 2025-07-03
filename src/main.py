@@ -3,6 +3,8 @@ from vehicle import Vehicle
 from solver import UCSSolver
 from solver import BFSSolver
 from solver import DFSSolver
+from solver import AStarSolver
+
 
 def main():
     vehicles = [
@@ -88,6 +90,30 @@ def main():
         print("\nNo solution found.")
 
     print("\n--- BFS Solver Stats ---")
+    print(f"Search Time: {stats['search_time']:.4f} seconds")
+    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
+    print(f"Nodes Expanded: {stats['nodes_expanded']}")
+    print("-" * 20)
+
+    # --- Solve with A* ---
+    print("Solving with A* Search ...")
+    a_star_solver = AStarSolver(board)
+    solution = a_star_solver.solve()
+    stats = a_star_solver.get_stats()
+
+    if solution:
+        print("\nSolution found!")
+        print(f"Path: {solution}")
+        
+        # To visualize the solution, we can apply the moves
+        final_board = board.apply_moves(solution)
+        print("\nFinal Board State:")
+        print(final_board)
+
+    else:
+        print("\nNo solution found.")
+
+    print("\n--- A* Solver Stats ---")
     print(f"Search Time: {stats['search_time']:.4f} seconds")
     print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
     print(f"Nodes Expanded: {stats['nodes_expanded']}")
