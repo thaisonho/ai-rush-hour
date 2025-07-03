@@ -1,5 +1,6 @@
 import time
-import resource
+import psutil
+import os
 
 from ..base import Solver
 from move import Move
@@ -10,22 +11,31 @@ class DFSSolver(Solver):
         self.solution = None
         self.memory_usage = 0
 
+        process = psutil.Process(os.getpid())
         start_time = time.time()
-        initial_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        initial_memory = process.memory_info().rss
+        peak_memory = initial_memory
 
         visited = set()
 
         def dfs(board, path, depth):
+            nonlocal peak_memory
+            current_memory = process.memory_info().rss
+            if current_memory > peak_memory:
+                peak_memory = current_memory
+
             if board.is_solved():
                 return path
             if depth >= depth_limit:
                 return None
 
             visited.add(repr(board))
-            self.nodes_expanded += 1
 
             for move in board.get_possible_moves():
                 new_board = board.apply_move(move)
+                self.nodes_expanded += 1
+                if new_board.is_solved():
+                    return path + [move]
                 if repr(new_board) in visited:
                     continue
                 result = dfs(new_board, path + [move], depth + 1)
@@ -35,6 +45,8 @@ class DFSSolver(Solver):
 
         self.solution = dfs(self.board, [], 0)
         self.search_time = time.time() - start_time
-        final_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        self.memory_usage = (final_memory - initial_memory) / 1024  # in KB
+        final_memory = process.memory_info().rss
+        if final_memory > peak_memory:
+            peak_memory = final_memory
+        self.memory_usage = (peak_memory - initial_memory) / (1024 * 1024)  # in MB
         return self.solution
