@@ -2,7 +2,7 @@ import time
 import heapq
 import resource
 
-from solver import Solver
+from ..base import Solver
 
 
 class UCSSolver(Solver):
