@@ -39,7 +39,7 @@ class BFSSolver(Solver):
                     final_memory = process.memory_info().rss
                     if final_memory > peak_memory:
                         peak_memory = final_memory
-                    self.memory_usage = (peak_memory - initial_memory) / (1024 * 1024)  # in MB
+                    self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
                     return path
 
                 board_repr = repr(new_board)
@@ -52,6 +52,6 @@ class BFSSolver(Solver):
         final_memory = process.memory_info().rss
         if final_memory > peak_memory:
             peak_memory = final_memory
-        self.memory_usage = (peak_memory - initial_memory) / (1024 * 1024)  # in MB
+        self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
         self.solution = None
         return None
