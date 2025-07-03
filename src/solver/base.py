@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from board import Board
 
+
 class Solver(ABC):
     """
     An abstract class for implementing Search Algorithms.
