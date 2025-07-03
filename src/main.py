@@ -1,7 +1,6 @@
 from board import Board
 from vehicle import Vehicle
-from move import Move
-from solver import UCSSolver
+from search_algorithms.ucs import UCSSolver
 
 def main():
     vehicles = [
