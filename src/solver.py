@@ -57,7 +57,7 @@ class UCSSolver(Solver):
                 self.solution = path
                 self.search_time = time.time() - start_time
                 final_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                self.memory_usage = (final_memory - initial_memory) / 1024  # in KB
+                self.memory_usage = (final_memory - initial_memory) / 1024  # in MB
                 return path
 
             for move in current_board.get_possible_moves():
