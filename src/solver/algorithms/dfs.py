@@ -17,33 +17,35 @@ class DFSSolver(Solver):
         peak_memory = initial_memory
 
         visited = set()
+        stack = [(self.board, [], 0)]  # (board, path, depth)
+        visited.add(repr(self.board))
 
-        def dfs(board, path, depth):
-            nonlocal peak_memory
+        while stack:
+            board, path, depth = stack.pop()
+
             current_memory = process.memory_info().rss
             if current_memory > peak_memory:
                 peak_memory = current_memory
 
             if board.is_solved():
-                return path
+                self.solution = path
+                break
+
             if depth >= depth_limit:
-                return None
+                continue
 
-            visited.add(repr(board))
-
-            for move in board.get_possible_moves():
+            for move in reversed(board.get_possible_moves()):
                 new_board = board.apply_move(move)
                 self.nodes_expanded += 1
-                if new_board.is_solved():
-                    return path + [move]
-                if repr(new_board) in visited:
-                    continue
-                result = dfs(new_board, path + [move], depth + 1)
-                if result is not None:
-                    return result
-            return None
+                if repr(new_board) not in visited:
+                    if new_board.is_solved():
+                        self.solution = path + [move]
+                        stack.clear()
+                        break
+                    
+                    visited.add(repr(new_board))
+                    stack.append((new_board, path + [move], depth + 1))
 
-        self.solution = dfs(self.board, [], 0)
         self.search_time = time.time() - start_time
         final_memory = process.memory_info().rss
         if final_memory > peak_memory:
