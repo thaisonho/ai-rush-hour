@@ -22,7 +22,6 @@ class Solver(ABC):
     def get_stats(self):
         # return the stats of the solver as a dictionary
         return {
-            "solution": self.solution,
             "search_time": self.search_time,
             "memory_usage": self.memory_usage,
             "nodes_expanded": self.nodes_expanded,
