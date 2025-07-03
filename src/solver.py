@@ -1,6 +1,13 @@
 from abc import ABC, abstractmethod
 from board import Board
 
+#import library for UCS
+import time
+import heapq
+import resource
+from move import Move
+
+
 class Solver(ABC):
     """
     An abstract class for implementing Search Algorithms.
