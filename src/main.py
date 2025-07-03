@@ -1,6 +1,8 @@
 from board import Board
 from vehicle import Vehicle
 from solver import UCSSolver
+from solver import BFSSolver
+from solver import DFSSolver
 
 def main():
     vehicles = [
@@ -38,6 +40,54 @@ def main():
         print("\nNo solution found.")
 
     print("\n--- UCS Solver Stats ---")
+    print(f"Search Time: {stats['search_time']:.4f} seconds")
+    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
+    print(f"Nodes Expanded: {stats['nodes_expanded']}")
+    print("-" * 20)
+
+     # --- Solve with DFS ---
+    print("Solving with BFS Search ...")
+    dfs_solver = DFSSolver(board)
+    solution = dfs_solver.solve()
+    stats = dfs_solver.get_stats()
+
+    if solution:
+        print("\nSolution found!")
+        print(f"Path: {solution}")
+        
+        # To visualize the solution, we can apply the moves
+        final_board = board.apply_moves(solution)
+        print("\nFinal Board State:")
+        print(final_board)
+
+    else:
+        print("\nNo solution found.")
+
+    print("\n--- DFS Solver Stats ---")
+    print(f"Search Time: {stats['search_time']:.4f} seconds")
+    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
+    print(f"Nodes Expanded: {stats['nodes_expanded']}")
+    print("-" * 20)
+
+        # --- Solve with BFS ---
+    print("Solving with BFS Search ...")
+    bfs_solver = BFSSolver(board)
+    solution = bfs_solver.solve()
+    stats = bfs_solver.get_stats()
+
+    if solution:
+        print("\nSolution found!")
+        print(f"Path: {solution}")
+        
+        # To visualize the solution, we can apply the moves
+        final_board = board.apply_moves(solution)
+        print("\nFinal Board State:")
+        print(final_board)
+
+    else:
+        print("\nNo solution found.")
+
+    print("\n--- BFS Solver Stats ---")
     print(f"Search Time: {stats['search_time']:.4f} seconds")
     print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
     print(f"Nodes Expanded: {stats['nodes_expanded']}")
