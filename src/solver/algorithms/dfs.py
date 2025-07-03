@@ -3,7 +3,6 @@ import psutil
 import os
 
 from ..base import Solver
-from move import Move
 
 class DFSSolver(Solver):
     def solve(self, depth_limit: int = 50):
