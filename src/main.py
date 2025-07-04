@@ -5,10 +5,15 @@ from solver import UCSSolver, BFSSolver, DFSSolver, IDSSolver, AStarSolver
 def main():
     vehicles = [
         Vehicle('R', 1, 2, 2, 'H'),
-        Vehicle('A', 0, 0, 2, 'V'),
-        Vehicle('B', 0, 4, 2, 'H'),
-        Vehicle('C', 3, 0, 3, 'V'),
-        Vehicle('D', 4, 3, 2, 'H'),
+        Vehicle('A', 0, 0, 2, 'H'),
+        Vehicle('B', 2, 0, 2, 'H'),
+        Vehicle('C', 4, 0, 2, 'V'),
+        Vehicle('D', 3, 1, 2, 'V'),
+        Vehicle('E', 0, 4, 2, 'H'),
+        Vehicle('F', 2, 3, 3, 'V'),
+        Vehicle('G', 3, 3, 3, 'H'),
+        Vehicle('H', 5, 4, 2, 'V'),
+
     ]
 
     # Create the game board
