@@ -1,6 +1,7 @@
 import time
 import heapq
-import resource
+import psutil
+import os
 
 from ..base import Solver
 
@@ -10,8 +11,11 @@ class UCSSolver(Solver):
         self.nodes_expanded = 0
         self.solution = None
         self.memory_usage = 0
+
+        process = psutil.Process(os.getpid())
         start_time = time.time()
-        initial_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        initial_memory = process.memory_info().rss
+        peak_memory = initial_memory
 
         initial_board_repr = repr(self.board)
         # Priority queue: (cost, counter, board)
@@ -29,6 +33,10 @@ class UCSSolver(Solver):
             cost, _, current_board = heapq.heappop(frontier)
             current_board_repr = repr(current_board)
 
+            current_memory = process.memory_info().rss
+            if current_memory > peak_memory:
+                peak_memory = current_memory
+
             if cost > total_cost[current_board_repr]:
                 continue
 
@@ -37,8 +45,10 @@ class UCSSolver(Solver):
             if current_board.is_solved():
                 self.solution = self._path_construct(came_from, current_board_repr)
                 self.search_time = time.time() - start_time
-                final_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                self.memory_usage = (final_memory - initial_memory) / 1024  # in KB
+                final_memory = process.memory_info().rss
+                if final_memory > peak_memory:
+                    peak_memory = final_memory
+                self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
                 return self.solution
 
             for move in current_board.get_possible_moves():
@@ -64,8 +74,10 @@ class UCSSolver(Solver):
 
         # If no solution is found
         self.search_time = time.time() - start_time
-        final_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        self.memory_usage = (final_memory - initial_memory) / 1024  # in KB
+        final_memory = process.memory_info().rss
+        if final_memory > peak_memory:
+            peak_memory = final_memory
+        self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
         self.solution = None
         return None
 
@@ -79,4 +91,4 @@ class UCSSolver(Solver):
             current_board_repr = parent_repr
         # current path is in reverse form end -> start
         # so we reverse it to start -> end
-        return path[::-1]  
+        return path[::-1]
