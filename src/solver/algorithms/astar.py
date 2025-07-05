@@ -16,8 +16,10 @@ class AStarSolver(Solver):
     def _get_vehicle_map(self, board: Board) -> dict[str, int]:
         return {vehicle.id: vehicle.length for vehicle in board.vehicles}
 
-    # the heuristic value is calculated base on the total length of blocking vehicles.
     def _heuristic(self, board: Board, vehicle_map: dict[str, int]) -> int:
+        """
+        The heuristic value is calculated base on the total length of blocking vehicles.
+        """
         red_car = board.vehicles[0]
         if board.is_solved():
             return 0
@@ -38,29 +40,36 @@ class AStarSolver(Solver):
         self.solution = None
         self.memory_usage = 0
         
-        process = psutil.Process(os.getpid())  # <-- CHANGE
+        process = psutil.Process(os.getpid()) 
         start_time = time.time()
-        initial_memory = process.memory_info().rss  # <-- CHANGE
-        peak_memory = initial_memory  # <-- ADD
+        initial_memory = process.memory_info().rss 
+        peak_memory = initial_memory 
 
         initial_board = self.board
         initial_board_repr = repr(initial_board)
         vehicle_map = self._get_vehicle_map(initial_board)
 
+        # The frontier is a priority queue (min-heap) of states to visit.
+        # Each item is a tuple: (f_cost, g_cost, counter, board_state).
+        # f_cost = g_cost + h_cost (total estimated cost)
+        # g_cost = cost from the start node
+        # counter = a tie-breaker to ensure FIFO behavior for states with the same f_cost.
         counter = 0
         h_cost = self._heuristic(initial_board, vehicle_map)
         frontier = [(h_cost, 0, counter, initial_board)]
         heapq.heapify(frontier)
 
+        # came_from is a dictionary that maps each board state to its parent state and the move taken to reach it. 
+        # Key: board representation, Value: (parent board representation, move to get here).        
         came_from = {initial_board_repr: (None, None)}
+
+        # g_cost_so_far keeps track of the lowest cost to reach each board state.
         g_cost_so_far = {initial_board_repr: 0}
 
         while frontier:
-            # --- Peak Memory Tracking inside the loop ---
-            current_memory = process.memory_info().rss # <-- ADD
-            if current_memory > peak_memory:            # <-- ADD
-                peak_memory = current_memory            # <-- ADD
-            # --------------------------------------------
+            current_memory = process.memory_info().rss 
+            if current_memory > peak_memory:            
+                peak_memory = current_memory            
 
             _, g_cost, _, current_board = heapq.heappop(frontier)
             current_board_repr = repr(current_board)
@@ -72,7 +81,7 @@ class AStarSolver(Solver):
 
             if current_board.is_solved():
                 self.solution = self._path_construct(came_from, current_board_repr)
-                break # <-- CHANGE: Break the loop to do final calculations outside
+                break 
 
             current_vehicle_map = self._get_vehicle_map(current_board)
 
@@ -94,9 +103,9 @@ class AStarSolver(Solver):
                     heapq.heappush(frontier, (f_cost, new_g_cost, counter, new_board))
 
         self.search_time = time.time() - start_time
-        final_memory = process.memory_info().rss # <-- CHANGE
-        if final_memory > peak_memory:          # <-- ADD
-            peak_memory = final_memory          # <-- ADD
+        final_memory = process.memory_info().rss 
+        if final_memory > peak_memory:          
+            peak_memory = final_memory          
         self.memory_usage = (peak_memory - initial_memory) / 1024  
         
         return self.solution
