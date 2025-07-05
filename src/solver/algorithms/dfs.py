@@ -1,8 +1,8 @@
 import time
-import resource
+import psutil
+import os
 
 from ..base import Solver
-from move import Move
 
 class DFSSolver(Solver):
     def solve(self, depth_limit: int = 50):
@@ -10,31 +10,44 @@ class DFSSolver(Solver):
         self.solution = None
         self.memory_usage = 0
 
+        process = psutil.Process(os.getpid())
         start_time = time.time()
-        initial_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        initial_memory = process.memory_info().rss
+        peak_memory = initial_memory
 
         visited = set()
+        stack = [(self.board, [], 0)]  # (board, path, depth)
+        visited.add(repr(self.board))
 
-        def dfs(board, path, depth):
+        while stack:
+            board, path, depth = stack.pop()
+
+            current_memory = process.memory_info().rss
+            if current_memory > peak_memory:
+                peak_memory = current_memory
+
             if board.is_solved():
-                return path
+                self.solution = path
+                break
+
             if depth >= depth_limit:
-                return None
+                continue
 
-            visited.add(repr(board))
-            self.nodes_expanded += 1
-
-            for move in board.get_possible_moves():
+            for move in reversed(board.get_possible_moves()):
                 new_board = board.apply_move(move)
-                if repr(new_board) in visited:
-                    continue
-                result = dfs(new_board, path + [move], depth + 1)
-                if result is not None:
-                    return result
-            return None
+                self.nodes_expanded += 1
+                if repr(new_board) not in visited:
+                    if new_board.is_solved():
+                        self.solution = path + [move]
+                        stack.clear()
+                        break
+                    
+                    visited.add(repr(new_board))
+                    stack.append((new_board, path + [move], depth + 1))
 
-        self.solution = dfs(self.board, [], 0)
         self.search_time = time.time() - start_time
-        final_memory = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        self.memory_usage = (final_memory - initial_memory) / 1024  # in KB
+        final_memory = process.memory_info().rss
+        if final_memory > peak_memory:
+            peak_memory = final_memory
+        self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
         return self.solution
