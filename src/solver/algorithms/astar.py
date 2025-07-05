@@ -16,6 +16,7 @@ class AStarSolver(Solver):
     def _get_vehicle_map(self, board: Board) -> dict[str, int]:
         return {vehicle.id: vehicle.length for vehicle in board.vehicles}
 
+    # the heuristic value is calculated base on the total length of blocking vehicles.
     def _heuristic(self, board: Board, vehicle_map: dict[str, int]) -> int:
         red_car = board.vehicles[0]
         if board.is_solved():
