@@ -64,7 +64,7 @@ class UCSSolver(Solver):
                 if moved_vehicle is None:
                     raise ValueError(f"No vehicle found with id {move.vehicle_id} in current_board.vehicles")
 
-                new_cost = cost + moved_vehicle.length
+                new_cost = cost + (moved_vehicle.length * abs(move.amount))
                 
                 if board_repr not in total_cost or new_cost < total_cost[board_repr]:
                     total_cost[board_repr] = new_cost

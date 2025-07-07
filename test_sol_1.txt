@@ -1,0 +1,98 @@
+Initial Board:
+AABBC.
+...DC.
+.RRD..
+..FGGG
+EEF..H
+..F..H
+--------------------
+Solving with Uniform-Cost Search (UCS)...
+
+Solution found!
+Path: [Move(vehicle_id='R', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=2), Move(vehicle_id='D', amount=-1), Move(vehicle_id='F', amount=-3), Move(vehicle_id='G', amount=-2), Move(vehicle_id='C', amount=3), Move(vehicle_id='G', amount=2), Move(vehicle_id='F', amount=3), Move(vehicle_id='R', amount=4)]
+
+Final Board State:
+AA.DBB
+...D..
+....RR
+..FGGG
+EEF.CH
+..F.CH
+
+--- UCS Solver Stats ---
+Search Time: 0.9086 seconds
+Memory Usage: 1536.00 KB
+Nodes Expanded: 1442
+--------------------
+Solving with Depth-First Search (DFS)...
+
+Solution found!
+Path: [Move(vehicle_id='R', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='R', amount=1), Move(vehicle_id='A', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='R', amount=-1), Move(vehicle_id='A', amount=1), Move(vehicle_id='F', amount=-1), Move(vehicle_id='A', amount=-2), Move(vehicle_id='D', amount=-1), Move(vehicle_id='A', amount=1), Move(vehicle_id='F', amount=-1), Move(vehicle_id='E', amount=1), Move(vehicle_id='A', amount=-1), Move(vehicle_id='D', amount=1), Move(vehicle_id='A', amount=2), Move(vehicle_id='E', amount=1), Move(vehicle_id='A', amount=-1), Move(vehicle_id='B', amount=-1), Move(vehicle_id='A', amount=-1), Move(vehicle_id='B', amount=-1), Move(vehicle_id='C', amount=-1), Move(vehicle_id='E', amount=1), Move(vehicle_id='F', amount=1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='A', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='A', amount=1), Move(vehicle_id='F', amount=1), Move(vehicle_id='R', amount=1), Move(vehicle_id='A', amount=-1), Move(vehicle_id='D', amount=-1), Move(vehicle_id='R', amount=1), Move(vehicle_id='A', amount=-1), Move(vehicle_id='R', amount=-2), Move(vehicle_id='F', amount=-3), Move(vehicle_id='D', amount=1), Move(vehicle_id='E', amount=-1), Move(vehicle_id='G', amount=-1), Move(vehicle_id='D', amount=-1), Move(vehicle_id='E', amount=-1), Move(vehicle_id='G', amount=-2), Move(vehicle_id='C', amount=3), Move(vehicle_id='E', amount=-1), Move(vehicle_id='G', amount=3), Move(vehicle_id='F', amount=3), Move(vehicle_id='R', amount=4)]
+
+Final Board State:
+AA.DBB
+...D..
+....RR
+..FGGG
+EEF.CH
+..F.CH
+
+--- DFS Solver Stats ---
+Search Time: 0.1992 seconds
+Memory Usage: 0.00 KB
+Nodes Expanded: 3110
+--------------------
+Solving with Iterative Deepening Search (IDS)...
+
+Solution found!
+Path: [Move(vehicle_id='R', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='F', amount=-3), Move(vehicle_id='G', amount=-1), Move(vehicle_id='E', amount=2), Move(vehicle_id='G', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='C', amount=1), Move(vehicle_id='D', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='E', amount=-1), Move(vehicle_id='G', amount=2), Move(vehicle_id='F', amount=1), Move(vehicle_id='A', amount=1), Move(vehicle_id='E', amount=-1), Move(vehicle_id='F', amount=2), Move(vehicle_id='R', amount=4)]
+
+Final Board State:
+.AADBB
+...D..
+....RR
+..FGGG
+EEF.CH
+..F.CH
+
+--- IDS Solver Stats ---
+Search Time: 1.7930 seconds
+Memory Usage: 128.00 KB
+Nodes Expanded: 28036
+--------------------
+Solving with BFS Search ...
+
+Solution found!
+Path: [Move(vehicle_id='R', amount=-1), Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=1), Move(vehicle_id='F', amount=-3), Move(vehicle_id='G', amount=-3), Move(vehicle_id='C', amount=3), Move(vehicle_id='D', amount=3), Move(vehicle_id='G', amount=3), Move(vehicle_id='F', amount=3), Move(vehicle_id='R', amount=4)]
+
+Final Board State:
+AA.BB.
+......
+....RR
+..FGGG
+EEFDCH
+..FDCH
+
+--- BFS Solver Stats ---
+Search Time: 0.6367 seconds
+Memory Usage: 128.00 KB
+Nodes Expanded: 956
+--------------------
+Solving with A* Search ...
+
+Solution found!
+Path: [Move(vehicle_id='C', amount=1), Move(vehicle_id='B', amount=2), Move(vehicle_id='D', amount=-1), Move(vehicle_id='R', amount=-1), Move(vehicle_id='F', amount=-3), Move(vehicle_id='G', amount=-2), Move(vehicle_id='C', amount=3), Move(vehicle_id='G', amount=2), Move(vehicle_id='F', amount=3), Move(vehicle_id='R', amount=4)]
+
+Final Board State:
+AA.DBB
+...D..
+....RR
+..FGGG
+EEF.CH
+..F.CH
+
+--- A* Solver Stats ---
+Search Time: 0.3765 seconds
+Memory Usage: 128.00 KB
+Nodes Expanded: 581
+--------------------
