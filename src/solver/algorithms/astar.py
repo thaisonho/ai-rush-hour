@@ -86,7 +86,7 @@ class AStarSolver(Solver):
             current_vehicle_map = self._get_vehicle_map(current_board)
 
             for move in current_board.get_possible_moves():
-                move_cost = current_vehicle_map[move.vehicle_id]
+                move_cost = current_vehicle_map[move.vehicle_id] * abs(move.amount)
                 new_g_cost = g_cost + move_cost
                 
                 new_board = current_board.apply_move(move)
