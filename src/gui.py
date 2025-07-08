@@ -7,7 +7,7 @@ class GUI:
     def __init__(self, board):
         pygame.init()
         self.board = board
-        self.screen_size = (1000, 800)
+        self.screen_size = (600, 600)
         self.cell_size = min(self.screen_size) // (board.width + 4)
         self.grid_width = self.board.width * self.cell_size
         self.grid_height = self.board.height * self.cell_size
@@ -18,9 +18,9 @@ class GUI:
         self.screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("Rush Hour Solver")
 
-        self.car_images = self.load_car_images()
+        self.car_images = self._load_car_images()
 
-    def load_car_images(self):
+    def _load_car_images(self):
         sprites = SpriteSheet("assets/img/bk_cars1.a.png")
         images = {
             'red': sprites.parse_sprite('red_car-0'),
@@ -37,12 +37,14 @@ class GUI:
         }
         return images
 
-    def load_road_images(self):
+    def _load_road_images(self):
         road = SpriteSheet("assets/img/Road_01_Tile_05.png").parse_sprite("road-0")
         border = SpriteSheet("assets/img/Road_Side_02.png").parse_sprite("border-0")
+        corner = SpriteSheet("assets/img/Road_Round_Corner.png").parse_sprite("corner-0")
         image = {
             'road': road,
             'border': border,
+            'corner': corner
         }
         return image
 
@@ -66,11 +68,12 @@ class GUI:
     def draw_road(self):
         # Load images
         if not hasattr(self, 'road_images'):
-            self.road_images = self.load_road_images()
+            self.road_images = self._load_road_images()
             self.border_scale_factor = (self.cell_size, self.cell_size / 6)
             # Scale images once
             self.road_images['road'] = pygame.transform.scale(self.road_images['road'], (self.cell_size, self.cell_size))
             self.road_images['border'] = pygame.transform.scale(self.road_images['border'], self.border_scale_factor)
+            self.road_images['corner'] = pygame.transform.scale(self.road_images['corner'], (self.border_scale_factor[1] + 5, self.border_scale_factor[1] + 5))
 
         # Draw road tiles
         for r in range(self.board.height):
@@ -90,6 +93,16 @@ class GUI:
         for r in range(self.board.height):
             self.screen.blit(border_left, (self.grid_offset[0] - self.border_scale_factor[1], self.grid_offset[1] + r * self.cell_size)) # Left
             self.screen.blit(border_right, (self.grid_offset[0] + self.board.width * self.cell_size, self.grid_offset[1] + r * self.cell_size)) # Right
+
+        # Draw corners
+        self.screen.blit(self.road_images['corner'], (self.grid_offset[0] - self.border_scale_factor[1], \
+                                                      self.grid_offset[1] - self.border_scale_factor[1])) # Top-left
+        self.screen.blit(self.road_images['corner'], (self.grid_offset[0] + self.board.width * self.cell_size - self.border_scale_factor[1] / 3, \
+                                                      self.grid_offset[1] - self.border_scale_factor[1])) # Top-right
+        self.screen.blit(self.road_images['corner'], (self.grid_offset[0] - self.border_scale_factor[1], \
+                                                      self.grid_offset[1] + self.board.height * self.cell_size - self.border_scale_factor[1] / 3)) # Bottom-left
+        self.screen.blit(self.road_images['corner'], (self.grid_offset[0] + self.board.width * self.cell_size - self.border_scale_factor[1] / 3, \
+                                                      self.grid_offset[1] + self.board.height * self.cell_size - self.border_scale_factor[1] / 3)) # Bottom-right
 
     def draw_vehicles(self):
         for vehicle in self.board.vehicles:
