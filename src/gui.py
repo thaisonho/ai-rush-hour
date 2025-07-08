@@ -7,23 +7,17 @@ from spritesheet import SpriteSheet
 class GUI:
     def __init__(self, board):
         pygame.init()
-        self.board = board
         self.screen_size = (1000, 800)
-        self.cell_size = min(self.screen_size) // (board.width + 4)
-        self.grid_width = self.board.width * self.cell_size
-        self.grid_height = self.board.height * self.cell_size
-        self.grid_offset = (
-            (self.screen_size[0] - self.grid_width) // 2,
-            (self.screen_size[1] - self.grid_height) // 2 + 30,
-        )
         self.screen = pygame.display.set_mode(self.screen_size)
         pygame.display.set_caption("Rush Hour Solver")
 
-        self.car_images = self._load_car_images()
+        self._load_original_images()
+        self.set_board(board)
 
-    def _load_car_images(self):
+    def _load_original_images(self):
+        """Load all images once and store the original surfaces."""
         sprites = SpriteSheet("assets/img/bk_cars1.a.png")
-        images = {
+        self.original_car_images = {
             "red": sprites.parse_sprite("red_car-0"),
             "L2": [
                 sprites.parse_sprite("v2_0-0"),
@@ -40,42 +34,70 @@ class GUI:
                 sprites.parse_sprite("v3_2-0"),
             ],
         }
-        return images
-
-    def _load_road_images(self):
-        road = SpriteSheet("assets/img/Road_01_Tile_05.png").parse_sprite("road-0")
-        border = SpriteSheet("assets/img/Road_Side_02.png").parse_sprite("border-0")
-        corner = SpriteSheet("assets/img/Road_Round_Corner.png").parse_sprite(
-            "corner-0"
-        )
-        image = {"road": road, "border": border, "corner": corner}
-        return image
-
-    def _load_bg_images(self):
-        grass = SpriteSheet("assets/img/Grass_Tile.png").parse_sprite("grass-0")
-        image = {
-            "grass": grass,
+        self.original_road_images = {
+            "road": SpriteSheet("assets/img/Road_01_Tile_05.png").parse_sprite(
+                "road-0"
+            ),
+            "border": SpriteSheet("assets/img/Road_Side_02.png").parse_sprite(
+                "border-0"
+            ),
+            "corner": SpriteSheet("assets/img/Road_Round_Corner.png").parse_sprite(
+                "corner-0"
+            ),
         }
-        return image
+        self.original_bg_images = {
+            "grass": SpriteSheet("assets/img/Grass_Tile.png").parse_sprite("grass-0"),
+        }
+        self.logo_image = pygame.image.load("assets/img/logo.png")
+
+    def _scale_images(self):
+        """Rescale all images based on the current cell_size."""
+        self.car_images = {
+            "red": self.original_car_images["red"],  # Will be scaled in draw_vehicles
+            "L2": self.original_car_images["L2"],
+            "L3": self.original_car_images["L3"],
+        }
+
+        self.border_scale_factor = (self.cell_size, self.cell_size / 6)
+        self.road_images = {
+            "road": pygame.transform.scale(
+                self.original_road_images["road"], (self.cell_size, self.cell_size)
+            ),
+            "border": pygame.transform.scale(
+                self.original_road_images["border"], self.border_scale_factor
+            ),
+            "corner": pygame.transform.scale(
+                self.original_road_images["corner"],
+                (self.border_scale_factor[1] + 5, self.border_scale_factor[1] + 5),
+            ),
+        }
+        self.grass_image = pygame.transform.scale(
+            self.original_bg_images["grass"], (self.cell_size, self.cell_size)
+        )
+        self.logo = pygame.transform.scale(
+            self.logo_image,
+            (self.logo_image.get_width() // 3, self.logo_image.get_height() // 3),
+        )
+
+    def set_board(self, board):
+        """Set a new board and recalculate all board-dependent properties."""
+        self.board = board
+        self.cell_size = min(self.screen_size) // (board.width + 4)
+        self.grid_width = self.board.width * self.cell_size
+        self.grid_height = self.board.height * self.cell_size
+        self.grid_offset = (
+            (self.screen_size[0] - self.grid_width) // 2,
+            (self.screen_size[1] - self.grid_height) // 2 + 30,
+        )
+        self._scale_images()
 
     def draw_logo(self):
-        logo = pygame.image.load("assets/img/logo.png")
-        logo = pygame.transform.scale(
-            logo, (logo.get_width() // 3, logo.get_height() // 3)
-        )
-        logo_rect = logo.get_rect(
+        logo_rect = self.logo.get_rect(
             center=(self.screen_size[0] // 2, self.screen_size[1] // 8)
         )
-        self.screen.blit(logo, logo_rect)
+        self.screen.blit(self.logo, logo_rect)
 
     def draw_background(self):
-        if not hasattr(self, "bg_image"):
-            self.bg_images = self._load_bg_images()
-            self.grass_image = self.bg_images["grass"]
-            self.grass_image = pygame.transform.scale(
-                self.grass_image, (self.cell_size, self.cell_size)
-            )
-
         for r in range(self.screen_size[1] // self.cell_size + 1):
             for c in range(self.screen_size[0] // self.cell_size + 1):
                 self.screen.blit(
@@ -83,22 +105,6 @@ class GUI:
                 )
 
     def draw_road(self):
-        # Load images
-        if not hasattr(self, "road_images"):
-            self.road_images = self._load_road_images()
-            self.border_scale_factor = (self.cell_size, self.cell_size / 6)
-            # Scale images once
-            self.road_images["road"] = pygame.transform.scale(
-                self.road_images["road"], (self.cell_size, self.cell_size)
-            )
-            self.road_images["border"] = pygame.transform.scale(
-                self.road_images["border"], self.border_scale_factor
-            )
-            self.road_images["corner"] = pygame.transform.scale(
-                self.road_images["corner"],
-                (self.border_scale_factor[1] + 5, self.border_scale_factor[1] + 5),
-            )
-
         # Draw road tiles
         for r in range(self.board.height):
             for c in range(self.board.width):
@@ -220,7 +226,7 @@ class GUI:
                 - self.border_scale_factor[1] / 3,
             ),
         )  # Bottom-right
-        
+
     def draw_vehicles(self):
         for vehicle in self.board.vehicles:
             if vehicle.id == "R":
@@ -234,15 +240,12 @@ class GUI:
             else:
                 continue
 
-            if vehicle.orientation == "H":
-                image = pygame.transform.rotate(image, -90)
-
-            width = image.get_width()
-            height = image.get_height()
-
             scaled_image = pygame.transform.scale(
-                image, (width / 50 * self.cell_size, height / 50 * self.cell_size)
+                image, (self.cell_size, self.cell_size * vehicle.length)
             )
+
+            if vehicle.orientation == "H":
+                scaled_image = pygame.transform.rotate(scaled_image, -90)
 
             self.screen.blit(
                 scaled_image,
