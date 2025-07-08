@@ -1,86 +1,46 @@
 import time
 import heapq
-import psutil  
-import os      
+import tracemalloc
 
 from ..base import Solver
 from board import Board
 from move import Move
 
 class AStarSolver(Solver):
-    """
-    - The cost of a move, g(n), is the length of the vehicle being moved.
-    - The heuristic, h(n), is the sum of the lengths of vehicles blocking the exit path.
-    """
+    def _search(self, profile_memory: bool):
+        """Internal search function containing the core A* logic."""
+        nodes_expanded_this_run = 0
 
-    def _get_vehicle_map(self, board: Board) -> dict[str, int]:
-        return {vehicle.id: vehicle.length for vehicle in board.vehicles}
+        if profile_memory:
+            tracemalloc.start()
+            tracemalloc.clear_traces()
 
-    def _heuristic(self, board: Board, vehicle_map: dict[str, int]) -> int:
-        """
-        The heuristic value is calculated base on the total length of blocking vehicles.
-        """
-        red_car = board.vehicles[0]
-        if board.is_solved():
-            return 0
-
-        blocking_vehicle_ids = set()
-        grid = board._get_grid()
-
-        for x in range(red_car.x + red_car.length, board.width):
-            cell_content = grid[red_car.y][x]
-            if cell_content != '.':
-                blocking_vehicle_ids.add(cell_content)
-        
-        h_cost = sum(vehicle_map[vid] for vid in blocking_vehicle_ids)
-        return h_cost
-
-    def solve(self):
-        self.nodes_expanded = 0
-        self.solution = None
-        self.memory_usage = 0
-        
-        process = psutil.Process(os.getpid()) 
         start_time = time.time()
-        initial_memory = process.memory_info().rss 
-        peak_memory = initial_memory 
-
+        
         initial_board = self.board
         initial_board_repr = repr(initial_board)
         vehicle_map = self._get_vehicle_map(initial_board)
 
-        # The frontier is a priority queue (min-heap) of states to visit.
-        # Each item is a tuple: (f_cost, g_cost, counter, board_state).
-        # f_cost = g_cost + h_cost (total estimated cost)
-        # g_cost = cost from the start node
-        # counter = a tie-breaker to ensure FIFO behavior for states with the same f_cost.
         counter = 0
         h_cost = self._heuristic(initial_board, vehicle_map)
-        frontier = [(h_cost, 0, counter, initial_board)]
-        heapq.heapify(frontier)
-
-        # came_from is a dictionary that maps each board state to its parent state and the move taken to reach it. 
-        # Key: board representation, Value: (parent board representation, move to get here).        
+        frontier = [(h_cost, 0, counter, initial_board)] # (f_cost, g_cost, counter, board)
+        
         came_from = {initial_board_repr: (None, None)}
-
-        # g_cost_so_far keeps track of the lowest cost to reach each board state.
         g_cost_so_far = {initial_board_repr: 0}
+        
+        solution_path = None
 
         while frontier:
-            current_memory = process.memory_info().rss 
-            if current_memory > peak_memory:            
-                peak_memory = current_memory            
-
             _, g_cost, _, current_board = heapq.heappop(frontier)
             current_board_repr = repr(current_board)
 
             if g_cost > g_cost_so_far[current_board_repr]:
                 continue
 
-            self.nodes_expanded += 1
+            nodes_expanded_this_run += 1
 
             if current_board.is_solved():
-                self.solution = self._path_construct(came_from, current_board_repr)
+                solution_path = self._path_construct(came_from, current_board_repr)
                 break 
 
             current_vehicle_map = self._get_vehicle_map(current_board)
@@ -102,13 +62,45 @@ class AStarSolver(Solver):
                     counter += 1
                     heapq.heappush(frontier, (f_cost, new_g_cost, counter, new_board))
 
-        self.search_time = time.time() - start_time
-        final_memory = process.memory_info().rss 
-        if final_memory > peak_memory:          
-            peak_memory = final_memory          
-        self.memory_usage = (peak_memory - initial_memory) / 1024  
+        search_time = time.time() - start_time
+        
+        peak_memory_kb = 0.0
+        if profile_memory:
+            _, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            peak_memory_kb = peak / 1024
+
+        return solution_path, search_time, peak_memory_kb, nodes_expanded_this_run
+
+    def solve(self):
+        # --- Run 1: The "clean" run for accurate Time and Nodes Expanded stats ---
+        solution, search_time, _, nodes_expanded = self._search(profile_memory=False)
+        
+        self.solution = solution
+        self.search_time = search_time
+        self.nodes_expanded = nodes_expanded
+        self.memory_usage = 0.0
+
+        # --- Run 2: The "profiled" run ---
+        _, _, peak_memory, _ = self._search(profile_memory=True)
+        self.memory_usage = peak_memory
         
         return self.solution
+
+    def _get_vehicle_map(self, board: Board) -> dict[str, int]:
+        return {vehicle.id: vehicle.length for vehicle in board.vehicles}
+
+    def _heuristic(self, board: Board, vehicle_map: dict[str, int]) -> int:
+        red_car = board.vehicles[0]
+        if board.is_solved():
+            return 0
+        blocking_vehicle_ids = set()
+        grid = board._get_grid()
+        for x in range(red_car.x + red_car.length, board.width):
+            cell_content = grid[red_car.y][x]
+            if cell_content != '.':
+                blocking_vehicle_ids.add(cell_content)
+        return sum(vehicle_map[vid] for vid in blocking_vehicle_ids)
 
     def _path_construct(self, came_from: dict, current_board_repr: str):
         path = []
