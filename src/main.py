@@ -3,7 +3,6 @@ from vehicle import Vehicle
 from solver import UCSSolver, BFSSolver, DFSSolver, IDSSolver, AStarSolver
 
 def main():
-    """
     vehicles = [
         Vehicle('R', 1, 2, 2, 'H'),
         Vehicle('A', 0, 0, 2, 'H'),
@@ -16,40 +15,6 @@ def main():
         Vehicle('H', 5, 4, 2, 'V'),
 
     ]
-    vehicles = [
-        Vehicle('R', 3, 2, 2, 'H'),
-        Vehicle('A', 1, 0, 2, 'H'),
-        Vehicle('B', 0, 3, 3, 'H'),
-        Vehicle('C', 4, 4, 2, 'H'),
-        Vehicle('D', 0, 5, 2, 'H'),
-        Vehicle('E', 3, 5, 2, 'H'),
-        Vehicle('F', 0, 0, 3, 'V'),
-        Vehicle('G', 1, 1, 2, 'V'),
-        Vehicle('H', 2, 1, 2, 'V'),
-        Vehicle('I', 2, 4, 2, 'V'),
-        Vehicle('J', 3, 3, 2, 'V'),
-        Vehicle('K', 4, 0, 2, 'V'),
-        Vehicle('L', 5, 1, 3, 'V'),
-    ]
-    """
-
-    vehicles = [
-        Vehicle('R', 0, 2, 2, 'H'),
-Vehicle('H', 1, 0, 2, 'V'),
-Vehicle('I', 2, 0, 3, 'V'),
-Vehicle('B', 4, 0, 2, 'H'),
-Vehicle('L', 5, 1, 3, 'V'),
-Vehicle('K', 4, 2, 2, 'V'),
-Vehicle('G', 0, 3, 2, 'V'),
-Vehicle('C', 1, 3, 3, 'H'),
-Vehicle('D', 1, 4, 2, 'H'),
-Vehicle('J', 3, 4, 2, 'V'),
-Vehicle('E', 0, 5, 2, 'H'),
-Vehicle('F', 4, 5, 2, 'H'),
-
-    ]
-
-
 
     # Create the game board
     board = Board(6, 6, vehicles)
@@ -58,7 +23,7 @@ Vehicle('F', 4, 5, 2, 'H'),
     print("Initial Board:")
     print(board)
     print("-" * 20)
-    """
+
     # --- Solve with UCS ---
     print("Solving with Uniform-Cost Search (UCS)...")
     ucs_solver = UCSSolver(board)
@@ -130,9 +95,8 @@ Vehicle('F', 4, 5, 2, 'H'),
     print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
     print(f"Nodes Expanded: {stats['nodes_expanded']}")
     print("-" * 20)
-    """
     
-     # --- Solve with DFS ---
+    # --- Solve with DFS ---
     print("Solving with Depth-First Search (DFS)...")
     dfs_solver = DFSSolver(board)
     solution = dfs_solver.solve()
