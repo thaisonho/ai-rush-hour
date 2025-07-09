@@ -1,0 +1,14 @@
+vehicles = [
+        Vehicle('R', 0, 2, 2, 'H'),
+        Vehicle('B', 2, 0, 2, 'V'),
+        Vehicle('C', 3, 0, 2, 'H'),
+        Vehicle('D', 4, 1, 2, 'V'),
+        Vehicle('E', 2, 3, 2, 'H'),
+        Vehicle('F', 5, 0, 2, 'V'),
+        Vehicle('G', 5, 2, 2, 'V'),
+        Vehicle('H', 4, 4, 2, 'H'),
+        Vehicle('I', 3, 4, 2, 'V'),
+        Vehicle('J', 0, 4, 3, 'H'),
+        Vehicle('K', 0, 3, 2, 'H'),
+
+    ]

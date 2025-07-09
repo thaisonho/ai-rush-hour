@@ -16,7 +16,6 @@ def main():
         Vehicle('H', 5, 4, 2, 'V'),
 
     ]
-    """
     vehicles = [
         Vehicle('R', 3, 2, 2, 'H'),
         Vehicle('A', 1, 0, 2, 'H'),
@@ -31,9 +30,26 @@ def main():
         Vehicle('J', 3, 3, 2, 'V'),
         Vehicle('K', 4, 0, 2, 'V'),
         Vehicle('L', 5, 1, 3, 'V'),
+    ]
+    """
 
+    vehicles = [
+        Vehicle('R', 0, 2, 2, 'H'),
+Vehicle('H', 1, 0, 2, 'V'),
+Vehicle('I', 2, 0, 3, 'V'),
+Vehicle('B', 4, 0, 2, 'H'),
+Vehicle('L', 5, 1, 3, 'V'),
+Vehicle('K', 4, 2, 2, 'V'),
+Vehicle('G', 0, 3, 2, 'V'),
+Vehicle('C', 1, 3, 3, 'H'),
+Vehicle('D', 1, 4, 2, 'H'),
+Vehicle('J', 3, 4, 2, 'V'),
+Vehicle('E', 0, 5, 2, 'H'),
+Vehicle('F', 4, 5, 2, 'H'),
 
     ]
+
+
 
     # Create the game board
     board = Board(6, 6, vehicles)
@@ -42,7 +58,7 @@ def main():
     print("Initial Board:")
     print(board)
     print("-" * 20)
-
+    """
     # --- Solve with UCS ---
     print("Solving with Uniform-Cost Search (UCS)...")
     ucs_solver = UCSSolver(board)
@@ -62,54 +78,6 @@ def main():
         print("\nNo solution found.")
 
     print("\n--- UCS Solver Stats ---")
-    print(f"Search Time: {stats['search_time']:.4f} seconds")
-    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
-    print(f"Nodes Expanded: {stats['nodes_expanded']}")
-    print("-" * 20)
-
-     # --- Solve with DFS ---
-    print("Solving with Depth-First Search (DFS)...")
-    dfs_solver = DFSSolver(board)
-    solution = dfs_solver.solve()
-    stats = dfs_solver.get_stats()
-
-    if solution:
-        print("\nSolution found!")
-        print(f"Path: {solution}")
-        
-        # To visualize the solution, we can apply the moves
-        final_board = board.apply_moves(solution)
-        print("\nFinal Board State:")
-        print(final_board)
-
-    else:
-        print("\nNo solution found.")
-
-    print("\n--- DFS Solver Stats ---")
-    print(f"Search Time: {stats['search_time']:.4f} seconds")
-    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
-    print(f"Nodes Expanded: {stats['nodes_expanded']}")
-    print("-" * 20)
-
-    # --- Solve with IDS ---
-    print("Solving with Iterative Deepening Search (IDS)...")
-    ids_solver = IDSSolver(board)
-    solution = ids_solver.solve()
-    stats = ids_solver.get_stats()
-
-    if solution:
-        print("\nSolution found!")
-        print(f"Path: {solution}")
-        
-        # To visualize the solution, we can apply the moves
-        final_board = board.apply_moves(solution)
-        print("\nFinal Board State:")
-        print(final_board)
-
-    else:
-        print("\nNo solution found.")
-
-    print("\n--- IDS Solver Stats ---")
     print(f"Search Time: {stats['search_time']:.4f} seconds")
     print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
     print(f"Nodes Expanded: {stats['nodes_expanded']}")
@@ -162,6 +130,56 @@ def main():
     print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
     print(f"Nodes Expanded: {stats['nodes_expanded']}")
     print("-" * 20)
+    """
+    
+     # --- Solve with DFS ---
+    print("Solving with Depth-First Search (DFS)...")
+    dfs_solver = DFSSolver(board)
+    solution = dfs_solver.solve()
+    stats = dfs_solver.get_stats()
 
+    if solution:
+        print("\nSolution found!")
+        print(f"Path: {solution}")
+        
+        # To visualize the solution, we can apply the moves
+        final_board = board.apply_moves(solution)
+        print("\nFinal Board State:")
+        print(final_board)
+
+    else:
+        print("\nNo solution found.")
+
+    print("\n--- DFS Solver Stats ---")
+    print(f"Search Time: {stats['search_time']:.4f} seconds")
+    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
+    print(f"Nodes Expanded: {stats['nodes_expanded']}")
+    print("-" * 20)
+    
+    # --- Solve with IDS ---
+    print("Solving with Iterative Deepening Search (IDS)...")
+    ids_solver = IDSSolver(board)
+    solution = ids_solver.solve()
+    stats = ids_solver.get_stats()
+
+    if solution:
+        print("\nSolution found!")
+        print(f"Path: {solution}")
+        
+        # To visualize the solution, we can apply the moves
+        final_board = board.apply_moves(solution)
+        print("\nFinal Board State:")
+        print(final_board)
+
+    else:
+        print("\nNo solution found.")
+
+    print("\n--- IDS Solver Stats ---")
+    print(f"Search Time: {stats['search_time']:.4f} seconds")
+    print(f"Memory Usage: {stats['memory_usage']:.2f} KB")
+    print(f"Nodes Expanded: {stats['nodes_expanded']}")
+    print("-" * 20)
+    
+    
 if __name__ == "__main__":
     main()

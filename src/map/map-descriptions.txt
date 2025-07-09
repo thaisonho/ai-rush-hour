@@ -1,0 +1,111 @@
+#######
+GROUP 1: FOUNDATIONAL & INTRODUCTORY MAPS (DIFFICULTY: LOW, < 15 MOVES)
+
+--------------------------------------------------------------------
+MAP 01: The Welcome Mat
+--------------------------------------------------------------------
+Difficulty: Very Low (~3 moves)
+Structure: Straight Shot
+Purpose: Serves as a fundamental sanity check to verify the correctness
+of all algorithm implementations and establishes a performance
+baseline under ideal, non-complex conditions.
+
+--------------------------------------------------------------------
+MAP 02: The Dead End
+--------------------------------------------------------------------
+Difficulty: Unsolvable
+Structure: Boxed-In / No Solution
+Purpose: To test the completeness property of the search algorithms,
+ensuring they can correctly identify a state space with no
+solution and terminate gracefully without infinite loops.
+
+--------------------------------------------------------------------
+MAP 03: The Simple Choice
+--------------------------------------------------------------------
+Difficulty: Low (~5 moves)
+Structure: Cost Dilemma
+Purpose: Designed to create a clear choice between a path with fewer
+moves but a higher cost, and a path with more moves but a lower
+cost. This directly contrasts the optimality criteria of BFS
+(shortest path) versus UCS (cheapest path).
+
+
+
+#######
+GROUP 2: ALGORITHM-SPECIFIC BEHAVIOR MAPS (DIFFICULTY: MEDIUM, 10-30 MOVES)
+--------------------------------------------------------------------
+MAP 04: The Lure
+--------------------------------------------------------------------
+Difficulty: Medium (~14 moves)
+Structure: Red Herring
+Purpose: To demonstrate the non-optimal nature of Depth-First Search.
+The map features an attractive but useless search path (a "trap")
+that DFS is likely to explore deeply, leading to a significantly
+longer solution path compared to optimal algorithms.
+
+--------------------------------------------------------------------
+MAP 05: The Shallow Goal
+--------------------------------------------------------------------
+Difficulty: Medium (~20 moves)
+Structure: Shallow Goal, Deep Trap
+Purpose: To highlight the primary advantage of Iterative Deepening
+Search (IDS) over a standard DFS. The optimal solution is at a
+relatively shallow depth, but a very long, dead-end path exists
+to trap DFS. IDS will efficiently find the shallow solution,
+while DFS will be significantly delayed, showcasing IDS's utility.
+
+--------------------------------------------------------------------
+MAP 06: The Heuristic Trap
+--------------------------------------------------------------------
+Difficulty: Medium (~11 moves)
+Structure: Misleading Heuristic State
+Purpose: To demonstrate the limitations of a given heuristic. This map
+is specifically crafted so that the heuristic provides a poor,
+misleading estimate, causing A* to perform less efficiently and
+explore more nodes than it would in a well-aligned scenario.
+
+
+
+#######
+GROUP 3: ADVANCED & COMPLEXITY-TESTING MAPS (DIFFICULTY: HIGH, >= 30 MOVES)
+
+--------------------------------------------------------------------
+MAP 07: The Time Sink
+--------------------------------------------------------------------
+Difficulty: High (~33 moves)
+Structure: High Branching Factor at Early Depths
+Purpose: To test the time complexity limits of IDS. The vast search
+space at shallow depths makes the repetitive nature of IDS
+prohibitively expensive, leading to a timeout. This contrasts
+with DFS, which may still find a solution within the time limit.
+
+--------------------------------------------------------------------
+MAP 08: The Funnel
+--------------------------------------------------------------------
+Difficulty: High (~33 moves)
+Structure: Funnel
+Purpose: To showcase the power and efficiency of A* search. The
+solution requires a long, non-obvious sequence of moves to clear a
+single "gatekeeper" vehicle. This is a scenario where a good
+heuristic drastically reduces the search space compared to
+uninformed methods like BFS and UCS.
+
+--------------------------------------------------------------------
+MAP 09: The Complex Interlock
+--------------------------------------------------------------------
+Difficulty: Very High (~50 moves)
+Structure: Tightly Constrained 
+Purpose: A general-purpose hard puzzle to evaluate overall algorithm
+performance under pressure. The high density and interlocking
+nature of vehicles test the algorithms' ability to handle
+complex local constraints and deep search paths.
+
+--------------------------------------------------------------------
+MAP 10: The Labyrinth
+--------------------------------------------------------------------
+Difficulty: Extremely High (~51 moves)
+Structure: Ultimate Challenge
+Purpose: To push all algorithms to their absolute limits. This map
+combines multiple difficult patterns and has a very long optimal
+solution, testing the boundaries of time, memory, and heuristic
+effectiveness. It serves as the final stress test.
