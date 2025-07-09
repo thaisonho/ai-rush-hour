@@ -48,7 +48,7 @@ class DFSSolver(Solver):
 
         return solution_path, search_time, peak_memory_kb, nodes_expanded_this_run
 
-    def solve(self, depth_limit: int = 50):
+    def solve(self, depth_limit: int = 500):
         # --- Run 1: The "clean" run for accurate Time and Nodes Expanded stats ---
         solution, search_time, _, nodes_expanded = self._search(depth_limit, profile_memory=False)
         
