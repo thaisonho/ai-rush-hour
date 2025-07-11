@@ -1,0 +1,35 @@
+{
+  "frames": {
+    "bar-0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 100
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 100
+      },
+      "sourceSize": {
+        "w": 360,
+        "h": 100
+      }
+    }
+  },
+  "meta": {
+    "app": "sprite-sheet-to-json",
+    "version": "1.0.0",
+    "image": "Armor_Bar.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 360,
+      "h": 100
+    },
+    "scale": "1"
+  }
+}
