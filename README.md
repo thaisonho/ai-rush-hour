@@ -5,7 +5,7 @@
 ## Overview
 
 <h3 align=center>
-    <img src="assets/img/GUI.png">
+    <img src="assets/img/GUI.png" width=300>
 </h3>
 
 In this project, our team develop a solver for Rush Hour. 
