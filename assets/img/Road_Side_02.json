@@ -1,0 +1,35 @@
+{
+  "frames": {
+    "border-0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 93
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 93
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 93
+      }
+    }
+  },
+  "meta": {
+    "app": "sprite-sheet-to-json",
+    "version": "1.0.0",
+    "image": "Road_Side_02.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 93
+    },
+    "scale": "1"
+  }
+}

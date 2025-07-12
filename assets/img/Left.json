@@ -1,0 +1,35 @@
+{
+  "frames": {
+    "left-0": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 135,
+        "h": 250
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 135,
+        "h": 250
+      },
+      "sourceSize": {
+        "w": 135,
+        "h": 250
+      }
+    }
+  },
+  "meta": {
+    "app": "sprite-sheet-to-json",
+    "version": "1.0.0",
+    "image": "Left.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 135,
+      "h": 250
+    },
+    "scale": "1"
+  }
+}

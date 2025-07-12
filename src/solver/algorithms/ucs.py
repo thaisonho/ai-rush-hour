@@ -1,87 +1,86 @@
 import time
 import heapq
-import psutil
-import os
+import tracemalloc
 
 from ..base import Solver
 
 
 class UCSSolver(Solver):
-    def solve(self):
-        self.nodes_expanded = 0
-        self.solution = None
-        self.memory_usage = 0
+    def _search(self, profile_memory: bool):
+        """Internal search function containing the core UCS logic."""
+        nodes_expanded_this_run = 0
 
-        process = psutil.Process(os.getpid())
+        if profile_memory:
+            tracemalloc.start()
+            tracemalloc.clear_traces()
+
         start_time = time.time()
-        initial_memory = process.memory_info().rss
-        peak_memory = initial_memory
 
+        # vehicle mapping for quick access
+        vehicle_map = {v.id: v for v in self.board.vehicles}
         initial_board_repr = repr(self.board)
-        # Priority queue: (cost, counter, board)
-        # A counter is used to break ties in the priority queue
         counter = 0
-        frontier = [(0, counter, self.board)]
-        heapq.heapify(frontier)
+        frontier = [(0, counter, self.board)]  # (cost, counter, board)
 
-        # came_from dict to track parent pointers and moves
-        # the store value is a tuple of (repr(parent_board), move)
         came_from = {initial_board_repr: (None, None)}
         total_cost = {initial_board_repr: 0}
+
+        solution_path = None
 
         while frontier:
             cost, _, current_board = heapq.heappop(frontier)
             current_board_repr = repr(current_board)
 
-            current_memory = process.memory_info().rss
-            if current_memory > peak_memory:
-                peak_memory = current_memory
-
             if cost > total_cost[current_board_repr]:
                 continue
 
-            self.nodes_expanded += 1
+            nodes_expanded_this_run += 1
 
             if current_board.is_solved():
-                self.solution = self._path_construct(came_from, current_board_repr)
-                self.search_time = time.time() - start_time
-                final_memory = process.memory_info().rss
-                if final_memory > peak_memory:
-                    peak_memory = final_memory
-                self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
-                return self.solution
+                solution_path = self._path_construct(came_from, current_board_repr)
+                break
 
             for move in current_board.get_possible_moves():
                 new_board = current_board.apply_move(move)
                 board_repr = repr(new_board)
 
-                moved_vehicle = None
-                for vehicle in current_board.vehicles:
-                    if vehicle.id == move.vehicle_id:
-                        moved_vehicle = vehicle
-                        break
-
+                moved_vehicle = vehicle_map.get(move.vehicle_id)
                 if moved_vehicle is None:
-                    raise ValueError(f"No vehicle found with id {move.vehicle_id} in current_board.vehicles")
+                    continue
 
                 new_cost = cost + (moved_vehicle.length * abs(move.amount))
-                
+
                 if board_repr not in total_cost or new_cost < total_cost[board_repr]:
                     total_cost[board_repr] = new_cost
                     came_from[board_repr] = (current_board_repr, move)
                     counter += 1
                     heapq.heappush(frontier, (new_cost, counter, new_board))
 
-        # If no solution is found
-        self.search_time = time.time() - start_time
-        final_memory = process.memory_info().rss
-        if final_memory > peak_memory:
-            peak_memory = final_memory
-        self.memory_usage = (peak_memory - initial_memory) / (1024)  # in kB
-        self.solution = None
-        return None
+        search_time = time.time() - start_time
 
-    # helper function to construct the path
+        peak_memory_kb = 0.0
+        if profile_memory:
+            _, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            peak_memory_kb = peak / 1024
+
+        return solution_path, search_time, peak_memory_kb, nodes_expanded_this_run
+
+    def solve(self):
+        # this run measure search time
+        solution, search_time, _, nodes_expanded = self._search(profile_memory=False)
+
+        self.solution = solution
+        self.search_time = search_time
+        self.nodes_expanded = nodes_expanded
+        self.memory_usage = 0.0
+
+        # this run measure memory usage
+        _, _, peak_memory, _ = self._search(profile_memory=True)
+        self.memory_usage = peak_memory
+
+        return self.solution
+
     def _path_construct(self, came_from: dict, current_board_repr: str):
         path = []
         while current_board_repr is not None:
@@ -89,6 +88,4 @@ class UCSSolver(Solver):
             if move:
                 path.append(move)
             current_board_repr = parent_repr
-        # current path is in reverse form end -> start
-        # so we reverse it to start -> end
         return path[::-1]
