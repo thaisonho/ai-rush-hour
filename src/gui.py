@@ -1026,7 +1026,6 @@ class GUI:
                         self.handle_restart_button()
                     elif event.key == pygame.K_ESCAPE:
                         # ESC key - always does a full reset
-                        # For consistency, maybe we should consider a full reset here
                         self.board = copy.deepcopy(self.current_board)
                         self.current_move_index = 0
                         self.animation_finished = False
@@ -1097,7 +1096,7 @@ if __name__ == "__main__":
     ]
 
     # Create the game board
-    board = Board(6, 6, vehicles)
+    init_board = Board(6, 6, vehicles)
 
-    gui = GUI(board)
+    gui = GUI(init_board)
     gui.run()
