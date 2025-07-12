@@ -1,0 +1,7 @@
+vehicles = [
+        Vehicle('R', 0, 2, 2, 'H'),
+        Vehicle('A', 2, 1, 2, 'V'), 
+        Vehicle('B', 0, 3, 3, 'H'), 
+        Vehicle('C', 1, 0, 2, 'H'),
+        Vehicle('D', 4, 0, 2, 'H'),
+    ]
