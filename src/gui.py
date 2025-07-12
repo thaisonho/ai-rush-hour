@@ -26,12 +26,12 @@ class GUI:
         self.animation_finished = False
         self.solution_found = False
         self.last_move_time = 0
-        self.move_duration = 1000  # milliseconds between moves
+        self.move_duration = 1000  # milliseconds (use as animation speed)
         self.solver_stats = None
 
         # Speed control for animation
-        self.animation_speed = 1  # Default speed multiplier
-        self.max_speed = 4  # Maximum speed multiplier
+        self.animation_speed = 1  
+        self.max_speed = 4
 
         # Cost tracking for UCS and A*
         self.total_cost = 0  # Total cost of the solution
@@ -39,12 +39,12 @@ class GUI:
         self.current_h_cost = 0  # Current heuristic cost for A*
         self.current_g_cost = 0  # Current g cost for A*
 
-        # Algorithm selection (default to BFS)
+        # Algorithm selectoin
         self.selected_algorithm = "BFS"
         self.algorithms = ["BFS", "DFS", "UCS", "IDS", "A*"]
         self.algorithm_index = 0
 
-        # Map selection (default to map 1)
+        # Map selection
         self.selected_map = 1
         self.max_maps = 10
 
@@ -59,11 +59,10 @@ class GUI:
         self.map_right_arrow_rect = None
 
         self._load_original_images()
-        self.load_map(self.selected_map)  # Load initial map
+        self.load_map(self.selected_map)
         self.set_board(self.current_board)
 
     def _load_original_images(self):
-        """Load all images once and store the original surfaces."""
         sprites = SpriteSheet("assets/img/bk_cars1.a.png")
         self.original_car_images = {
             "red": sprites.parse_sprite("red_car-0"),
@@ -164,7 +163,7 @@ class GUI:
         )
 
     def set_board(self, board):
-        """Set a new board and recalculate all board-dependent properties."""
+        """Set a new board and adjust properties accordingly."""
         self.board = board
         self.cell_size = min(self.screen_size) // (board.width + 4)
         self.grid_width = self.board.width * self.cell_size
@@ -176,13 +175,8 @@ class GUI:
         self._scale_images()
 
     def load_map(self, map_number):
-        """Load a map from the map files."""
         try:
             map_file = f"src/map/map{map_number:02d}.txt"
-            if not os.path.exists(map_file):
-                print(f"Map file {map_file} not found, using default map")
-                self.current_board = self.original_board
-                return
 
             # Read and parse the map file
             with open(map_file, "r") as f:
@@ -207,6 +201,7 @@ class GUI:
 
         except Exception as e:
             print(f"Error loading map {map_number}: {e}")
+            # If there any errors, use the original board
             self.current_board = self.original_board
 
     def draw_logo(self):
@@ -218,7 +213,7 @@ class GUI:
     def draw_bars(self):
         # Calculate positions for two bars
         bar_spacing = self.cell_size * 1.2
-        bar_y_start = (self.screen_size[1] - self.cell_size * 3) // 2
+        bar_y_start = (self.screen_size[1] - self.cell_size * 2.5) // 2
 
         # Draw the algorithm selection bar (top bar)
         algo_bar_y = bar_y_start
@@ -812,27 +807,12 @@ class GUI:
         """Calculate g(n) and h(n) costs for A* algorithm."""
         # g(n) is the same as UCS cost
         g_cost = self.current_cost
-
-        # h(n) is the heuristic - sum of lengths of blocking vehicles
-        red_car = board.vehicles[0]
-        if board.is_solved():
-            return g_cost, 0
-
-        blocking_vehicle_ids = set()
-        grid = board._get_grid()
-
-        # Find vehicles blocking the red car's path to exit
-        for x in range(red_car.x + red_car.length, board.width):
-            cell_content = grid[red_car.y][x]
-            if cell_content != '.':
-                blocking_vehicle_ids.add(cell_content)
-
-        # Calculate heuristic cost
-        h_cost = 0
-        for vehicle in board.vehicles:
-            if vehicle.id in blocking_vehicle_ids:
-                h_cost += vehicle.length
-
+        
+        # Use the A* solver's heuristic function directly to get h(n)
+        # This ensures consistency between solver and GUI
+        astar_solver = AStarSolver(board)
+        h_cost = astar_solver._heuristic(board)
+        
         return g_cost, h_cost
 
     def update_costs(self):
