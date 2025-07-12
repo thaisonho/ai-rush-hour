@@ -14,5 +14,3 @@ vehicles = [
         Vehicle('F', 3, 5, 2, 'H'),
 
     ]
-
- 
