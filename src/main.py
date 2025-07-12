@@ -1,23 +1,28 @@
+import argparse
 from board import Board
 from vehicle import Vehicle
 from solver import UCSSolver, BFSSolver, DFSSolver, IDSSolver, AStarSolver
 
+def parse_map(map_file):
+    vehicles = []
+    with open(map_file, 'r') as f:
+        lines = f.readlines()
+        grid_size = tuple(map(int, lines[0].strip().split(',')))
+        for line in lines[1:]:
+            parts = line.strip().split(',')
+            id, x, y, length, orientation = parts
+            vehicles.append(Vehicle(id, int(x), int(y), int(length), orientation))
+    return grid_size, vehicles
+
 def main():
-    vehicles = [
-        Vehicle('R', 1, 2, 2, 'H'),
-        Vehicle('A', 0, 0, 2, 'H'),
-        Vehicle('B', 2, 0, 2, 'H'),
-        Vehicle('C', 4, 0, 2, 'V'),
-        Vehicle('D', 3, 1, 2, 'V'),
-        Vehicle('E', 0, 4, 2, 'H'),
-        Vehicle('F', 2, 3, 3, 'V'),
-        Vehicle('G', 3, 3, 3, 'H'),
-        Vehicle('H', 5, 4, 2, 'V'),
+    parser = argparse.ArgumentParser(description="Solve the Rush Hour puzzle.")
+    parser.add_argument("map_file", help="Path to the map file.")
+    args = parser.parse_args()
 
-    ]
-
+    grid_size, vehicles = parse_map(args.map_file)
+    
     # Create the game board
-    board = Board(6, 6, vehicles)
+    board = Board(grid_size[0], grid_size[1], vehicles)
 
     # Print the initial state of the board
     print("Initial Board:")
