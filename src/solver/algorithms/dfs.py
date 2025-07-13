@@ -3,6 +3,7 @@ import tracemalloc
 
 from ..base import Solver
 
+
 class DFSSolver(Solver):
     def _search(self, depth_limit: int, profile_memory: bool):
         """Internal search function containing the core DFS logic."""
@@ -17,7 +18,7 @@ class DFSSolver(Solver):
         visited = set()
         stack = [(self.board, [], 0)]
         visited.add(repr(self.board))
-        
+
         solution_path = None
 
         while stack:
@@ -37,9 +38,9 @@ class DFSSolver(Solver):
                 if new_board_repr not in visited:
                     visited.add(new_board_repr)
                     stack.append((new_board, path + [move], depth + 1))
-        
+
         search_time = time.time() - start_time
-        
+
         peak_memory_kb = 0.0
         if profile_memory:
             _, peak = tracemalloc.get_traced_memory()
@@ -49,16 +50,18 @@ class DFSSolver(Solver):
         return solution_path, search_time, peak_memory_kb, nodes_expanded_this_run
 
     def solve(self, depth_limit: int = 500):
-        # --- Run 1: The "clean" run for accurate Time and Nodes Expanded stats ---
-        solution, search_time, _, nodes_expanded = self._search(depth_limit, profile_memory=False)
-        
+        # this run measure search time
+        solution, search_time, _, nodes_expanded = self._search(
+            depth_limit, profile_memory=False
+        )
+
         self.solution = solution
         self.search_time = search_time
         self.nodes_expanded = nodes_expanded
         self.memory_usage = 0.0
 
-        # --- Run 2: The "profiled" run ---
+        # this run measure memory usage
         _, _, peak_memory, _ = self._search(depth_limit, profile_memory=True)
         self.memory_usage = peak_memory
-        
+
         return self.solution

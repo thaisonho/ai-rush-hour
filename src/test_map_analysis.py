@@ -89,7 +89,7 @@ class ExperimentRunner:
             if algorithm_name == 'IDS':
                 solution = solver.solve(max_depth=50, timeout=self.max_time)
             elif algorithm_name == 'DFS':
-                solution = solver.solve(depth_limit=50)
+                solution = solver.solve(depth_limit=500)  # Increased from 50 to 600
             else:
                 solution = solver.solve()
                 
@@ -575,7 +575,7 @@ def main():
     
     # Current configuration - you can modify this as needed
     # For now, excluding map06 as requested
-    # selected_maps = ['map03']
+    # selected_maps = ['map05']
     # runner = ExperimentRunner(selected_maps=selected_maps)
     
     # Run experiments
