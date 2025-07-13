@@ -385,16 +385,16 @@ class GUI:
             )
             text_y = box_y + self.measurements_box.get_height() - 60
             self.screen.blit(found_solution_text, (text_x, text_y))
-            # Total steps
+            # Total moves
             total_text = self.small_font.render(
-                f"Total Steps: {len(self.current_solution)}", True, (255, 255, 255)
+                f"Total Moves: {len(self.current_solution)}", True, (255, 255, 255)
             )
             self.screen.blit(total_text, (box_x + 30, current_y))
             current_y += line_spacing
 
-            # Current step
+            # Current move
             current_step_text = self.small_font.render(
-                f"Current Step: {self.current_move_index}", True, (255, 255, 255)
+                f"Current Move: {self.current_move_index}", True, (255, 255, 255)
             )
             self.screen.blit(current_step_text, (box_x + 30, current_y))
             current_y += line_spacing
@@ -653,6 +653,56 @@ class GUI:
             ),
         )  # Bottom-right
 
+    def draw_red_car_tracker(self):
+        """Draw a semi-transparent tracking frame around the red car."""
+        red_car = None
+        # Find the red car object in the current board's vehicle list
+        for vehicle in self.board.vehicles:
+            if vehicle.id == "R":
+                red_car = vehicle
+                break
+
+        if not red_car:
+            return
+
+        # --- Calculate the tracker's position and size ---
+        
+        # Padding to make the frame slightly larger than the car
+        padding = 3  
+
+        # Base pixel coordinates of the car on the screen
+        base_x = self.grid_offset[0] + red_car.x * self.cell_size
+        base_y = self.grid_offset[1] + red_car.y * self.cell_size
+
+        # Size of the car based on its length and orientation
+        if red_car.orientation == "H":
+            car_width = self.cell_size * red_car.length
+            car_height = self.cell_size
+        else:  # "V" 
+            car_width = self.cell_size
+            car_height = self.cell_size * red_car.length
+            
+        # Create a Rect for the tracker frame, including padding
+        tracker_rect = pygame.Rect(
+            base_x - padding,
+            base_y - padding,
+            car_width + padding * 2,
+            car_height + padding * 2
+        )
+
+        # --- Draw the semi-transparent rectangle ---
+
+        # Create a new Surface with the size of the tracker frame.
+        tracker_surface = pygame.Surface(tracker_rect.size, pygame.SRCALPHA)
+
+        # Fill the surface with the chosen color and transparency.
+        # The color format is (R, G, B, Alpha).
+        tracker_color = (102, 255, 178, 200)  
+        tracker_surface.fill(tracker_color)
+
+        # Blit (draw) the tracker surface onto the main screen at the calculated position.
+        self.screen.blit(tracker_surface, tracker_rect.topleft)
+
     def draw_vehicles(self):
         for vehicle in self.board.vehicles:
             if vehicle.id == "R":
@@ -864,6 +914,7 @@ class GUI:
             self.draw_background()
             self.draw_logo()
             self.draw_road()
+            self.draw_red_car_tracker()
             self.draw_vehicles()
             self.draw_control_buttons()
             self.draw_measurements_box()
@@ -1072,6 +1123,7 @@ class GUI:
             self.draw_background()
             self.draw_logo()
             self.draw_road()
+            self.draw_red_car_tracker()
             self.draw_vehicles()
             self.draw_control_buttons()
             self.draw_measurements_box()
