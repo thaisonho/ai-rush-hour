@@ -87,7 +87,7 @@ class ExperimentRunner:
             
             # Run the algorithm with timeout handling
             if algorithm_name == 'IDS':
-                solution = solver.solve(max_depth=50, timeout=self.max_time)
+                solution = solver.solve(max_depth=500, timeout=self.max_time)
             elif algorithm_name == 'DFS':
                 solution = solver.solve(depth_limit=500)  # Increased from 50 to 600
             else:

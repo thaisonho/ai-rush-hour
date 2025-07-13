@@ -634,17 +634,22 @@ class ResultAnalyzer:
             
             if not solved_data.empty:
                 # Ranking theo thời gian (thuật toán nhanh nhất = điểm cao nhất)
-                time_ranking = solved_data.set_index('algorithm')['search_time'].rank(ascending=True)
+                # Reset index để tránh duplicate indices
+                solved_data_clean = solved_data.reset_index(drop=True)
+                time_values = solved_data_clean.groupby('algorithm')['search_time'].mean()
+                time_ranking = time_values.rank(ascending=True)
                 max_rank = len(time_ranking)
                 
                 # Chuyển đổi rank thành điểm (rank 1 = điểm cao nhất)
                 for alg in time_ranking.index:
-                    scores.loc[alg, map_name] = max_rank - time_ranking[alg] + 1
+                    rank_value = time_ranking[alg]  # Now this should be a scalar
+                    score_value = max_rank - rank_value + 1
+                    scores.at[alg, map_name] = score_value
             
             # Thuật toán không tìm được lời giải = 0 điểm
             unsolved_algs = map_data[map_data['solution_found'] == False]['algorithm'].unique()
             for alg in unsolved_algs:
-                scores.loc[alg, map_name] = 0
+                scores.at[alg, map_name] = 0.0
         
         # Tính tổng điểm
         total_scores = scores.sum(axis=1, skipna=True).sort_values(ascending=False)
@@ -997,242 +1002,6 @@ class ResultAnalyzer:
         print("   - Ưu tiên thuật toán có coverage rate cao")
         print("   - Cân nhắc trade-off giữa thời gian và chất lượng lời giải")
         print("   - Kiểm tra hiệu suất trên các loại bài toán khác nhau")
-    
-    def analyze_per_map_performance(self):
-        """Phân tích hiệu suất từng map và so sánh với lý thuyết"""
-        print("\n" + "="*80)
-        print("PHÂN TÍCH HIỆU SUẤT TỪNG MAP - SO SÁNH VỚI LÝ THUYẾT")
-        print("="*80)
-        
-        maps = sorted(self.df['map'].unique())
-        algorithm_theoretical_properties = {
-            'BFS': {'optimal': True, 'complete': True, 'memory_efficient': False},
-            'DFS': {'optimal': False, 'complete': True, 'memory_efficient': True},
-            'UCS': {'optimal': True, 'complete': True, 'memory_efficient': False},
-            'A*': {'optimal': True, 'complete': True, 'memory_efficient': False, 'efficient': True},
-            'IDS': {'optimal': True, 'complete': True, 'memory_efficient': True}
-        }
-        
-        total_insights = []
-        
-        for map_name in maps:
-            print(f"\n{'='*60}")
-            print(f"MAP: {map_name}")
-            print(f"{'='*60}")
-            
-            # Lấy dữ liệu cho map này
-            map_data = self.df[self.df['map'] == map_name]
-            map_solved = map_data[map_data['solution_found'] == True]
-            
-            # Tổng quan
-            total_tested = len(map_data)
-            total_solved = len(map_solved)
-            success_rate = (total_solved / total_tested * 100) if total_tested > 0 else 0
-            
-            print(f"📊 TỔNG QUAN:")
-            print(f"  - Số thuật toán test: {total_tested}")
-            print(f"  - Số thuật toán giải được: {total_solved}")
-            print(f"  - Tỷ lệ thành công: {success_rate:.1f}%")
-            
-            if map_solved.empty:
-                print("  ⚠️  KHÔNG CÓ THUẬT TOÁN NÀO TÌM ĐƯỢC LỜI GIẢI!")
-                continue
-            
-            # Phân tích hiệu suất của từng thuật toán
-            print(f"\n📈 HIỆU SUẤT CỦA TỪNG THUẬT TOÁN:")
-            algorithms_stats = {}
-            
-            for alg in sorted(map_solved['algorithm'].unique()):
-                alg_data = map_solved[map_solved['algorithm'] == alg].iloc[0]
-                
-                stats = {
-                    'search_time': alg_data['search_time'],
-                    'memory_usage': alg_data['memory_usage'],
-                    'nodes_expanded': alg_data['nodes_expanded'],
-                    'solution_length': alg_data['solution_length']
-                }
-                algorithms_stats[alg] = stats
-                
-                print(f"  {alg}:")
-                print(f"    ⏱️  Thời gian: {stats['search_time']:.3f}s")
-                print(f"    💾 Bộ nhớ: {stats['memory_usage']:.1f}KB")
-                print(f"    🔍 Nodes mở rộng: {stats['nodes_expanded']:.0f}")
-                print(f"    📏 Độ dài lời giải: {stats['solution_length']:.0f}")
-            
-            # So sánh với lý thuyết
-            print(f"\n🔬 SO SÁNH VỚI LÝ THUYẾT:")
-            map_insights = self.analyze_theoretical_compliance(algorithms_stats, map_name)
-            total_insights.extend(map_insights)
-            
-            # Rankings
-            print(f"\n🏆 RANKINGS:")
-            
-            # Ranking theo thời gian
-            time_ranking = sorted(algorithms_stats.items(), key=lambda x: x[1]['search_time'])
-            print(f"  ⏱️  Nhanh nhất:")
-            for i, (alg, stats) in enumerate(time_ranking[:3], 1):
-                print(f"    {i}. {alg}: {stats['search_time']:.3f}s")
-            
-            # Ranking theo bộ nhớ
-            memory_ranking = sorted(algorithms_stats.items(), key=lambda x: x[1]['memory_usage'])
-            print(f"  💾 Tiết kiệm bộ nhớ nhất:")
-            for i, (alg, stats) in enumerate(memory_ranking[:3], 1):
-                print(f"    {i}. {alg}: {stats['memory_usage']:.1f}KB")
-            
-            # Ranking theo nodes
-            nodes_ranking = sorted(algorithms_stats.items(), key=lambda x: x[1]['nodes_expanded'])
-            print(f"  🔍 Hiệu quả nhất (ít nodes):")
-            for i, (alg, stats) in enumerate(nodes_ranking[:3], 1):
-                print(f"    {i}. {alg}: {stats['nodes_expanded']:.0f} nodes")
-            
-            # Ranking theo độ dài lời giải
-            solution_ranking = sorted(algorithms_stats.items(), key=lambda x: x[1]['solution_length'])
-            print(f"  📏 Lời giải tối ưu nhất:")
-            for i, (alg, stats) in enumerate(solution_ranking[:3], 1):
-                print(f"    {i}. {alg}: {stats['solution_length']:.0f} moves")
-        
-        # Tổng kết insights
-        print(f"\n" + "="*80)
-        print("TỔNG KẾT INSIGHTS TỪ PHÂN TÍCH")
-        print("="*80)
-        
-        self.summarize_insights(total_insights)
-        
-        return total_insights
-    
-    def analyze_theoretical_compliance(self, algorithms_stats, map_name):
-        """Phân tích tuân thủ lý thuyết cho một map"""
-        insights = []
-        
-        print(f"  🔍 PHÂN TÍCH TUÂN THỦ LÝ THUYẾT:")
-        
-        # 1. Kiểm tra tính tối ưu
-        optimal_algorithms = ['BFS', 'UCS', 'A*', 'IDS']
-        optimal_present = [alg for alg in optimal_algorithms if alg in algorithms_stats]
-        
-        if len(optimal_present) > 1:
-            solution_lengths = [algorithms_stats[alg]['solution_length'] for alg in optimal_present]
-            min_length = min(solution_lengths)
-            max_length = max(solution_lengths)
-            
-            if max_length - min_length <= 1:  # Cho phép sai số nhỏ
-                print(f"    ✅ Tính tối ưu: ĐÚNG - Các thuật toán tối ưu đều tìm lời giải ~{min_length:.0f} moves")
-                insights.append(f"{map_name}: Tính tối ưu được đảm bảo")
-            else:
-                print(f"    ❌ Tính tối ưu: SAI - Sự khác biệt lớn: {min_length:.0f} - {max_length:.0f} moves")
-                insights.append(f"{map_name}: Có vấn đề về tính tối ưu")
-        
-        # 2. So sánh A* vs BFS (A* nên hiệu quả hơn)
-        if 'A*' in algorithms_stats and 'BFS' in algorithms_stats:
-            astar_nodes = algorithms_stats['A*']['nodes_expanded']
-            bfs_nodes = algorithms_stats['BFS']['nodes_expanded']
-            
-            if astar_nodes < bfs_nodes:
-                efficiency_gain = (bfs_nodes - astar_nodes) / bfs_nodes * 100
-                print(f"    ✅ A* vs BFS: ĐÚNG - A* tiết kiệm {efficiency_gain:.1f}% nodes")
-                insights.append(f"{map_name}: A* hiệu quả hơn BFS ({efficiency_gain:.1f}%)")
-            else:
-                print(f"    ❌ A* vs BFS: SAI - A* không hiệu quả hơn BFS")
-                insights.append(f"{map_name}: A* không hiệu quả hơn BFS (có vấn đề)")
-        
-        # 3. Kiểm tra DFS tiết kiệm bộ nhớ
-        if 'DFS' in algorithms_stats:
-            dfs_memory = algorithms_stats['DFS']['memory_usage']
-            other_memories = [stats['memory_usage'] for alg, stats in algorithms_stats.items() if alg != 'DFS']
-            
-            if other_memories and dfs_memory <= min(other_memories):
-                print(f"    ✅ DFS memory: ĐÚNG - Tiết kiệm nhất ({dfs_memory:.1f}KB)")
-                insights.append(f"{map_name}: DFS tiết kiệm bộ nhớ như lý thuyết")
-            else:
-                print(f"    ❌ DFS memory: SAI - Không tiết kiệm nhất")
-                insights.append(f"{map_name}: DFS không tiết kiệm bộ nhớ như mong đợi")
-        
-        # 4. So sánh UCS vs BFS (khi cost = 1, nên tương đương)
-        if 'UCS' in algorithms_stats and 'BFS' in algorithms_stats:
-            ucs_solution = algorithms_stats['UCS']['solution_length']
-            bfs_solution = algorithms_stats['BFS']['solution_length']
-            
-            if abs(ucs_solution - bfs_solution) <= 1:
-                print(f"    ✅ UCS vs BFS: ĐÚNG - Tương đương về lời giải")
-                insights.append(f"{map_name}: UCS và BFS tương đương như lý thuyết")
-            else:
-                print(f"    ❌ UCS vs BFS: SAI - Khác biệt lớn về lời giải")
-                insights.append(f"{map_name}: UCS và BFS không tương đương")
-        
-        # 5. Phân tích thời gian chạy
-        if len(algorithms_stats) > 1:
-            times = [(alg, stats['search_time']) for alg, stats in algorithms_stats.items()]
-            times.sort(key=lambda x: x[1])
-            
-            fastest = times[0]
-            slowest = times[-1]
-            
-            print(f"    📊 Thời gian: {fastest[0]} nhanh nhất ({fastest[1]:.3f}s), {slowest[0]} chậm nhất ({slowest[1]:.3f}s)")
-            
-            # Kiểm tra xem DFS có thể nhanh hơn BFS trong trường hợp may mắn
-            if 'DFS' in algorithms_stats and 'BFS' in algorithms_stats:
-                dfs_time = algorithms_stats['DFS']['search_time']
-                bfs_time = algorithms_stats['BFS']['search_time']
-                
-                if dfs_time < bfs_time:
-                    insights.append(f"{map_name}: DFS may mắn - nhanh hơn BFS")
-                else:
-                    insights.append(f"{map_name}: BFS ổn định hơn DFS về thời gian")
-        
-        return insights
-    
-    def summarize_insights(self, insights):
-        """Tổng kết insights từ tất cả các maps"""
-        print("🔍 INSIGHTS TỔNG QUÁT:")
-        
-        # Phân loại insights
-        optimal_issues = [i for i in insights if 'tối ưu' in i.lower()]
-        efficiency_insights = [i for i in insights if 'hiệu quả' in i.lower()]
-        memory_insights = [i for i in insights if 'bộ nhớ' in i.lower()]
-        stability_insights = [i for i in insights if 'ổn định' in i.lower() or 'may mắn' in i.lower()]
-        
-        if optimal_issues:
-            print(f"\n  🎯 VỀ TÍNH TỐI ƯU:")
-            for insight in optimal_issues[:5]:  # Hiển thị top 5
-                print(f"    - {insight}")
-        
-        if efficiency_insights:
-            print(f"\n  ⚡ VỀ HIỆU SUẤT:")
-            for insight in efficiency_insights[:5]:
-                print(f"    - {insight}")
-        
-        if memory_insights:
-            print(f"\n  💾 VỀ BỘ NHỚ:")
-            for insight in memory_insights[:5]:
-                print(f"    - {insight}")
-        
-        if stability_insights:
-            print(f"\n  🎲 VỀ TÍNH ỔN ĐỊNH:")
-            for insight in stability_insights[:5]:
-                print(f"    - {insight}")
-        
-        # Thống kê tổng quan
-        print(f"\n📈 THỐNG KÊ:")
-        print(f"  - Tổng số insights: {len(insights)}")
-        print(f"  - Insights về tối ưu: {len(optimal_issues)}")
-        print(f"  - Insights về hiệu suất: {len(efficiency_insights)}")
-        print(f"  - Insights về bộ nhớ: {len(memory_insights)}")
-        print(f"  - Insights về tính ổn định: {len(stability_insights)}")
-        
-        # Khuyến nghị
-        print(f"\n💡 KHUYẾN NGHỊ:")
-        
-        # Dựa trên insights để đưa ra khuyến nghị
-        astar_good = len([i for i in insights if 'A*' in i and 'hiệu quả' in i])
-        dfs_memory_good = len([i for i in insights if 'DFS' in i and 'tiết kiệm bộ nhớ' in i])
-        
-        if astar_good > len(insights) * 0.3:
-            print("  ✅ A* thể hiện hiệu quả như lý thuyết - Khuyến nghị sử dụng")
-        
-        if dfs_memory_good > len(insights) * 0.3:
-            print("  ✅ DFS tiết kiệm bộ nhớ như lý thuyết - Tốt cho môi trường hạn chế")
-        
-        print("  📊 Kết quả cho thấy các thuật toán hoạt động khá phù hợp với lý thuyết")
 
 def main():
     """Chương trình chính"""
@@ -1245,15 +1014,12 @@ def main():
         # Thực hiện các phân tích
         analyzer.analyze_success_rates()
         analyzer.analyze_performance_for_solved()
+        analyzer.analyze_map_difficulty()
+        analyzer.compare_algorithms_by_map()
         
-        # PHÂN TÍCH HIỆU SUẤT TỪNG MAP - SO SÁNH VỚI LÝ THUYẾT
-        analyzer.analyze_per_map_performance()
         
         # PHÂN TÍCH CÔNG BẰNG MỚI
         analyzer.analyze_fair_comparison()
-        
-        analyzer.analyze_map_difficulty()
-        analyzer.compare_algorithms_by_map()
         
         # Tạo biểu đồ
         print(f"\nĐang tạo biểu đồ...")
@@ -1263,14 +1029,11 @@ def main():
         print(f"\nĐang tạo biểu đồ so sánh công bằng...")
         analyzer.create_fair_comparison_plots()
         
-        # Tạo biểu đồ phân tích từng map
-        print(f"\nĐang tạo biểu đồ phân tích từng map...")
-        analyzer.create_per_map_visualization()
-        
         # Báo cáo tổng kết
         analyzer.generate_summary_report()
         
-        # Biểu đồ phân tích từng map
+        # Tạo biểu đồ phân tích từng map
+        print(f"\nĐang tạo biểu đồ phân tích từng map...")
         analyzer.create_per_map_visualization()
         
         print(f"\nHoàn thành phân tích! Các file đã được lưu tại: {analyzer.output_dir}")
